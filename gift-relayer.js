@@ -41,6 +41,19 @@ const { TelegramClient } = require('@mtcute/node');
 const app = express();
 app.use(express.json());
 
+// Mini App frontend runs on a different origin than this relayer, so
+// without this the browser blocks every /claim request before it even
+// leaves the page — shows up client-side as a generic "Failed to fetch".
+// Lock this down to your actual frontend origin(s) once you know them;
+// wide open for now to get things unblocked.
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
+
 const PRIZE_STORE_URL = process.env.PRIZE_STORE_URL;
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const COOLDOWN_SECONDS = parseInt(process.env.CLAIM_COOLDOWN_SECONDS, 10) || 30;
