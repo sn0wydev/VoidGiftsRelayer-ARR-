@@ -56,7 +56,7 @@ app.use((req, res, next) => {
 
 const PRIZE_STORE_URL = process.env.PRIZE_STORE_URL;
 const BOT_TOKEN = process.env.BOT_TOKEN;
-const COOLDOWN_SECONDS = parseInt(process.env.CLAIM_COOLDOWN_SECONDS, 10) || 30;
+const COOLDOWN_SECONDS = parseInt(process.env.CLAIM_COOLDOWN_SECONDS, 0) || 0;
 const NFT_DELAY_HOURS = parseInt(process.env.NFT_TRANSFER_DELAY_HOURS, 10) || 48;
 const NFT_WORKER_INTERVAL_MS = 5 * 60 * 1000; // check the due-queue every 5 min
 const GIFT_MESSAGE = 'Gift From @VoidGiftsOfficialBot ❤️'; // shown to the recipient when they open a basic gift
