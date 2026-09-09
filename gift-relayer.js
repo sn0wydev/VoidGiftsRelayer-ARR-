@@ -150,15 +150,26 @@ async function storeCall(path, options = {}) {
 const SESSION_PATH = process.env.MTCUTE_SESSION_PATH || 'voidgift-relayer';
 
 // On platforms like Railway, the raw session file never gets committed
-// to the repo. Instead it's stored as a sealed env var (MTCUTE_SESSION_B64,
-// base64-encoded — see export-session.js) and decoded back into a real
-// file here on boot, before the client tries to open it. Local dev
-// usually already has the real file on disk, so this only kicks in when
-// the file is missing AND the env var is present — it never overwrites
-// an existing session.
-if (!fs.existsSync(SESSION_PATH) && process.env.MTCUTE_SESSION_B64) {
-  fs.writeFileSync(SESSION_PATH, Buffer.from(process.env.MTCUTE_SESSION_B64, 'base64'));
-  console.log('✅ Restored @VoidGift_Relayer session from MTCUTE_SESSION_B64');
+// to the repo. Instead it's stored as sealed env vars and decoded back
+// into a real file here on boot, before the client tries to open it.
+// Railway caps a single variable at 32,768 chars, so a large session
+// gets split across MTCUTE_SESSION_B64_0, _1, _2, ... (see
+// export-session.js) — collected here in order and concatenated. Also
+// supports a single unsplit MTCUTE_SESSION_B64 for small sessions.
+// Local dev usually already has the real file on disk, so this only
+// kicks in when the file is missing — it never overwrites an existing
+// session.
+if (!fs.existsSync(SESSION_PATH)) {
+  const chunks = [];
+  for (let i = 0; process.env[`MTCUTE_SESSION_B64_${i}`]; i++) {
+    chunks.push(process.env[`MTCUTE_SESSION_B64_${i}`]);
+  }
+  const b64 = chunks.length ? chunks.join('') : process.env.MTCUTE_SESSION_B64;
+
+  if (b64) {
+    fs.writeFileSync(SESSION_PATH, Buffer.from(b64, 'base64'));
+    console.log(`✅ Restored @VoidGift_Relayer session from ${chunks.length ? `${chunks.length} chunked env var(s)` : 'MTCUTE_SESSION_B64'}`);
+  }
 }
 
 const tg = new TelegramClient({
