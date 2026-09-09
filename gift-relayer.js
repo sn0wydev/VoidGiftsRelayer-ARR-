@@ -156,20 +156,35 @@ const SESSION_PATH = process.env.MTCUTE_SESSION_PATH || 'voidgift-relayer';
 // gets split across MTCUTE_SESSION_B64_0, _1, _2, ... (see
 // export-session.js) — collected here in order and concatenated. Also
 // supports a single unsplit MTCUTE_SESSION_B64 for small sessions.
-// Local dev usually already has the real file on disk, so this only
-// kicks in when the file is missing — it never overwrites an existing
-// session.
-if (!fs.existsSync(SESSION_PATH)) {
-  const chunks = [];
-  for (let i = 0; process.env[`MTCUTE_SESSION_B64_${i}`]; i++) {
-    chunks.push(process.env[`MTCUTE_SESSION_B64_${i}`]);
-  }
-  const b64 = chunks.length ? chunks.join('') : process.env.MTCUTE_SESSION_B64;
+//
+// IMPORTANT: Railway restarts (crash-restarts included) reuse the same
+// container filesystem — a restart is NOT a fresh container. That means
+// any leftover local session file survives a crash. We always rebuild
+// from the env vars on every boot when they're present, rather than
+// trusting whatever's already on disk, so a file left over from a crash
+// mid-write can never get "silently reused" as if it were good.
+//
+// The write itself is atomic (write to a temp file, then rename) so a
+// crash DURING the write can never leave a half-written, corrupt session
+// file behind either — the old file stays intact until the new one is
+// fully written and renamed into place.
+const chunks = [];
+for (let i = 0; process.env[`MTCUTE_SESSION_B64_${i}`]; i++) {
+  chunks.push(process.env[`MTCUTE_SESSION_B64_${i}`]);
+}
+const sessionB64 = chunks.length ? chunks.join('') : process.env.MTCUTE_SESSION_B64;
 
-  if (b64) {
-    fs.writeFileSync(SESSION_PATH, Buffer.from(b64, 'base64'));
-    console.log(`✅ Restored @VoidGift_Relayer session from ${chunks.length ? `${chunks.length} chunked env var(s)` : 'MTCUTE_SESSION_B64'}`);
-  }
+if (sessionB64) {
+  const tmpPath = `${SESSION_PATH}.tmp`;
+  fs.writeFileSync(tmpPath, Buffer.from(sessionB64, 'base64'));
+  fs.renameSync(tmpPath, SESSION_PATH); // atomic — never leaves a half-written file on disk
+  console.log(`✅ Restored @VoidGift_Relayer session from ${chunks.length ? `${chunks.length} chunked env var(s)` : 'MTCUTE_SESSION_B64'}`);
+} else if (!fs.existsSync(SESSION_PATH)) {
+  // No env var AND no local file — there is nothing to boot from, and
+  // there's no real terminal on Railway to type a phone number into.
+  // Fail loudly instead of hanging on a "phone >" prompt no one can see.
+  console.error('❌ No MTCUTE_SESSION_B64(_N) env var set, and no local session file exists. Cannot start.');
+  process.exit(1);
 }
 
 const tg = new TelegramClient({
