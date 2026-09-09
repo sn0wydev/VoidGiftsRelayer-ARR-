@@ -3,8 +3,14 @@
     "version": "2.0.0",
     "description": "V2 gift relayer for VoidGifts — sends/transfers Telegram Gifts from @VoidGift_Relayer",
     "main": "gift-relayer.js",
+    "engines": {
+        "node": "22.x"
+    },
     "scripts": {
         "start": "node gift-relayer.js"
+    },
+    "overrides": {
+        "better-sqlite3": "^13.0.0"
     },
     "dependencies": {
         "express": "^4.18.2",
