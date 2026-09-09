@@ -329,19 +329,22 @@ app.post('/claim', async (req, res) => {
     return res.status(409).json({ error: 'This prize is already being processed' });
   }
 
-  // 1. Cooldown — DB-backed so it holds even across restarts/instances.
+  // 1. Resolve what this gift actually is, server-side — BEFORE burning
+  // any cooldown. An unknown/unsupported gift name can never succeed,
+  // so there's no reason to penalize the user's next real attempt for it.
+  const gift = resolveGift(giftName);
+  if (!gift) {
+    return res.status(400).json({ error: `Unknown gift: ${giftName}` });
+  }
+
+  // 2. Cooldown — DB-backed so it holds even across restarts/instances.
+  // Only consumed now that we know this claim can actually proceed.
   const cooldown = await storeCall(`/users/${userId}/cooldown`, {
     method: 'POST',
     body: JSON.stringify({ cooldown_seconds: COOLDOWN_SECONDS }),
   });
   if (!cooldown.ok) {
     return res.status(429).json({ error: 'Please slow down', retry_after: cooldown.data.retry_after });
-  }
-
-  // 2. Resolve what this gift actually is, server-side.
-  const gift = resolveGift(giftName);
-  if (!gift) {
-    return res.status(400).json({ error: `Unknown gift: ${giftName}` });
   }
 
   // 3. Atomically lock the prize — the real duplicate-claim guard.
