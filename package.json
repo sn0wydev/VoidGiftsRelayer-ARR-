@@ -1,0 +1,14 @@
+{
+    "name": "gift-relayer",
+    "version": "2.0.0",
+    "description": "V2 gift relayer for VoidGifts — sends/transfers Telegram Gifts from @VoidGift_Relayer",
+    "main": "gift-relayer.js",
+    "scripts": {
+        "start": "node gift-relayer.js"
+    },
+    "dependencies": {
+        "express": "^4.18.2",
+        "@mtcute/node": "^0.19.0",
+        "dotenv": "^16.4.5"
+    }
+}
