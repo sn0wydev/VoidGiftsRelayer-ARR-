@@ -147,6 +147,20 @@ function verifyInitData(initData, botToken) {
 // PRIZE STORE CLIENT
 // ============================================
 
+async function releaseCooldown(userId, claimedCooldownAt) {
+  if (!claimedCooldownAt) return; // nothing to release
+  try {
+    await storeCall(`/users/${userId}/cooldown`, {
+      method: 'DELETE',
+      body: JSON.stringify({ expected_last_claim_at: claimedCooldownAt }),
+    });
+  } catch (err) {
+    // Non-fatal — worst case the user just has to wait out the cooldown
+    // like normal. Don't let this mask the real error being returned.
+    console.error(`⚠️ Failed to release cooldown for user ${userId}:`, err.message);
+  }
+}
+
 async function storeCall(path, options = {}) {
   const res = await fetch(`${PRIZE_STORE_URL}${path}`, {
     headers: { 'Content-Type': 'application/json' },
@@ -346,6 +360,13 @@ app.post('/claim', async (req, res) => {
   if (!cooldown.ok) {
     return res.status(429).json({ error: 'Please slow down', retry_after: cooldown.data.retry_after });
   }
+  // Remember exactly what we just set, so a failed claim below can hand
+  // this back to /cooldown (DELETE) and release it — otherwise a claim
+  // that fails for an unrelated reason (lock conflict, send error, etc.)
+  // still burns the cooldown, and the user's very next honest retry
+  // gets bounced with "Please slow down" for something that never
+  // actually succeeded.
+  const claimedCooldownAt = cooldown.data.last_claim_at;
 
   // 3. Atomically lock the prize — the real duplicate-claim guard.
   const lock = await storeCall(`/prizes/${prizeId}/lock`, {
@@ -353,6 +374,7 @@ app.post('/claim', async (req, res) => {
     body: JSON.stringify({ user_id: userId }),
   });
   if (!lock.ok) {
+    await releaseCooldown(userId, claimedCooldownAt);
     return res.status(lock.status).json({ error: lock.data.error || 'Could not lock prize for claiming' });
   }
 
@@ -387,6 +409,7 @@ app.post('/claim', async (req, res) => {
 
   } catch (err) {
     console.error(`❌ Claim failed for prize ${prizeId}:`, err.message);
+    await releaseCooldown(userId, claimedCooldownAt);
     await storeCall(`/prizes/${prizeId}`, {
       method: 'PATCH',
       body: JSON.stringify({ status: 'failed', error_message: err.message }),
