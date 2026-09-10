@@ -249,11 +249,14 @@ async function sendBasicGift({ userId, telegramGiftId, message }) {
   // passing `gift` as a plain string (e.g. '5170145012310081615'), which
   // is neither a Long nor an object with an `.id` — so `gift.id` came
   // back `undefined` and Telegram rejected the invoice with "Object
-  // inputInvoiceStarGift is missing required property giftId". Also
-  // fixed: the param is `peerId`, not `userId` — mtcute never actually
-  // received who to send to.
+  // inputInvoiceStarGift is missing required property giftId".
+  //
+  // NOTE: on @mtcute/node@0.19.0 (the pinned version here) the param is
+  // `userId`, resolved internally via resolveUser() — NOT `peerId` (that
+  // rename only applies to newer mtcute majors and was wrong for this
+  // version; don't "fix" this again without checking package.json first).
   return tg.sendStarGift({
-    peerId: userId,
+    userId,
     gift: Long.fromString(String(telegramGiftId)),
     message,
     anonymous: false,
