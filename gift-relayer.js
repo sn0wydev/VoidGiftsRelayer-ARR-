@@ -37,6 +37,7 @@ const express = require('express');
 const crypto = require('crypto');
 const fs = require('fs');
 const { TelegramClient } = require('@mtcute/node');
+const Long = require('long'); // needed to build a valid giftId for sendStarGift — see FIX note in sendBasicGift()
 
 const app = express();
 app.use(express.json());
@@ -243,9 +244,17 @@ const inFlight = new Set();
 
 async function sendBasicGift({ userId, telegramGiftId, message }) {
   await ensureRelayer();
+  // FIX: mtcute's sendStarGift() builds the raw `inputInvoiceStarGift`
+  // internally as `giftId: Long.isLong(gift) ? gift : gift.id`. We were
+  // passing `gift` as a plain string (e.g. '5170145012310081615'), which
+  // is neither a Long nor an object with an `.id` — so `gift.id` came
+  // back `undefined` and Telegram rejected the invoice with "Object
+  // inputInvoiceStarGift is missing required property giftId". Also
+  // fixed: the param is `peerId`, not `userId` — mtcute never actually
+  // received who to send to.
   return tg.sendStarGift({
-    userId,
-    gift: telegramGiftId,
+    peerId: userId,
+    gift: Long.fromString(String(telegramGiftId)),
     message,
     anonymous: false,
     withUpgrade: false,
