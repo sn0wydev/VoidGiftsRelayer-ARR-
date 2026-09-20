@@ -355,12 +355,28 @@ app.post('/claim', async (req, res) => {
     return res.status(409).json({ error: 'This prize is already being processed' });
   }
 
-  // 1. Resolve what this gift actually is, server-side — BEFORE burning
-  // any cooldown. An unknown/unsupported gift name can never succeed,
-  // so there's no reason to penalize the user's next real attempt for it.
-  const gift = resolveGift(giftName);
+  // 1. Look the prize up in the store and resolve the gift from what the
+  // STORE says it is, never from the client's giftName. Before this, the
+  // request's giftName picked what got bought: a user holding a cheap prize
+  // (e.g. a Heart) could claim it with giftName "Diamond" and the relayer
+  // would send a Diamond from its own Stars balance. This runs BEFORE the
+  // cooldown so a bad request can't burn the user's next real attempt.
+  const stored = await storeCall(`/prizes/${encodeURIComponent(prizeId)}`);
+  if (!stored.ok) {
+    return res.status(stored.status === 404 ? 404 : 502).json({
+      error: stored.status === 404 ? 'Prize not found' : 'Could not verify prize'
+    });
+  }
+  if (String(stored.data.user_id) !== String(userId)) {
+    return res.status(403).json({ error: 'Prize does not belong to this user' });
+  }
+  if (stored.data.gift_name !== giftName) {
+    console.warn(`⚠️ giftName mismatch on prize ${prizeId}: store=${stored.data.gift_name} request=${giftName} user=${userId}`);
+    return res.status(400).json({ error: 'giftName does not match this prize' });
+  }
+  const gift = resolveGift(stored.data.gift_name);
   if (!gift) {
-    return res.status(400).json({ error: `Unknown gift: ${giftName}` });
+    return res.status(400).json({ error: `Unknown gift: ${stored.data.gift_name}` });
   }
 
   // 2. Cooldown — DB-backed so it holds even across restarts/instances.
