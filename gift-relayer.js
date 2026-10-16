@@ -337,10 +337,28 @@ class TopupRequiredError extends Error {
 }
 
 class NftOutOfStockError extends Error {
-  constructor(titles, owned) {
-    super(`No transferable "${(titles || []).join('" / "')}" collectible available in the relayer inventory (matching owned: ${owned || 0})`);
+  constructor(titles, owned, detail) {
+    super(`No transferable "${(titles || []).join('" / "')}" collectible available in the relayer inventory (matching owned: ${owned || 0})${detail ? ` — ${detail}` : ''}`);
     this.name = 'NftOutOfStockError';
   }
+}
+
+// Says WHY copies we own can't be sent: Telegram's transfer lock (can_transfer_at in the future),
+// a transfer fee above NFT_MAX_TRANSFER_STARS, or already reserved by another claim in progress.
+function stockDetail(matching) {
+  if (!matching || !matching.length) return 'the relayer owns none of this collection';
+  const now = Date.now();
+  const locked = matching.filter((d) => d.canTransferAt && d.canTransferAt.getTime() > now);
+  const pricey = matching.filter((d) => d.transferStars > NFT_MAX_TRANSFER_STARS);
+  const parts = [];
+  if (locked.length) {
+    const first = new Date(Math.min(...locked.map((d) => d.canTransferAt.getTime())));
+    parts.push(`${locked.length} locked by Telegram until ${first.toISOString()} (earliest)`);
+  }
+  if (pricey.length) parts.push(`${pricey.length} cost more than NFT_MAX_TRANSFER_STARS=${NFT_MAX_TRANSFER_STARS} Stars to transfer (highest fee ${Math.max(...pricey.map((d) => d.transferStars))})`);
+  const reservedN = matching.filter((d) => reservedNft.has(d.slug)).length;
+  if (reservedN) parts.push(`${reservedN} reserved by other claims in progress`);
+  return parts.join('; ') || 'no copy passed the transfer checks';
 }
 
 class RelayerConfigError extends Error {
@@ -527,7 +545,7 @@ function pickFrom(inventory, titles) {
 // if there is nothing to hand over, instead of failing 48 hours later.
 async function assertNftInStock(titles) {
   const { pick, matching } = pickFrom(await listOwnInventory(), titles);
-  if (!pick) throw new NftOutOfStockError(titles, matching.length);
+  if (!pick) throw new NftOutOfStockError(titles, matching.length, stockDetail(matching));
 }
 
 async function doTransfer(pick, recipient) {
@@ -553,7 +571,7 @@ async function transferNftGift({ userId, username, titles }) {
   const recipient = await resolveRecipient(userId, username);
 
   const { pick, matching } = pickFrom(await listOwnInventory(), titles);
-  if (!pick) throw new NftOutOfStockError(titles, matching.length);
+  if (!pick) throw new NftOutOfStockError(titles, matching.length, stockDetail(matching));
 
   reservedNft.add(pick.slug);
   try {
@@ -637,6 +655,9 @@ app.post('/claim', async (req, res) => {
   // cooldown so a bad request can't burn the user's next real attempt.
   const stored = await storeCall(`/prizes/${encodeURIComponent(prizeId)}`);
   if (!stored.ok) {
+    // 401 = INTERNAL_API_KEY differs from the prize-store's, 503 = key not set on the prize-store,
+    // 502/5xx = prize-store down or wrong PRIZE_STORE_URL. Logged so the cause is visible in Railway.
+    console.error(`❌ prize lookup ${prizeId} failed: HTTP ${stored.status} from ${PRIZE_STORE_URL} — ${stored.data?.error || 'no error body'}`);
     return res.status(stored.status === 404 ? 404 : 502).json({
       error: stored.status === 404 ? 'Prize not found' : 'Could not verify prize'
     });
