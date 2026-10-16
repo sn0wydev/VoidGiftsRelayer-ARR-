@@ -24,7 +24,8 @@
 //                          run interactive login in production)
 //   PRIZE_STORE_URL      - e.g. https://vgdatastorage-production.up.railway.app
 //   CLAIM_COOLDOWN_SECONDS (default 30)
-//   NFT_TRANSFER_DELAY_HOURS (default 48)
+//   NFT_TRANSFER_DELAY_HOURS (default 48; fractions ok, 0 = transfer on the next worker run)
+//   NFT_WORKER_INTERVAL_SECONDS (default 300; min 10)
 //   PORT
 // ============================================
 
@@ -60,8 +61,10 @@ app.use((req, res, next) => {
 const PRIZE_STORE_URL = process.env.PRIZE_STORE_URL;
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const COOLDOWN_SECONDS = parseInt(process.env.CLAIM_COOLDOWN_SECONDS, 0) || 0;
-const NFT_DELAY_HOURS = parseInt(process.env.NFT_TRANSFER_DELAY_HOURS, 10) || 48;
-const NFT_WORKER_INTERVAL_MS = 5 * 60 * 1000; // check the due-queue every 5 min
+// Hours (fractions allowed, e.g. 0.05 = 3 minutes — handy on a dev deployment). Default 48.
+const NFT_DELAY_HOURS = (Number.isFinite(parseFloat(process.env.NFT_TRANSFER_DELAY_HOURS)) && parseFloat(process.env.NFT_TRANSFER_DELAY_HOURS) >= 0)
+  ? parseFloat(process.env.NFT_TRANSFER_DELAY_HOURS) : 48;
+const NFT_WORKER_INTERVAL_MS = Math.max(10, parseInt(process.env.NFT_WORKER_INTERVAL_SECONDS, 10) || 300) * 1000; // due-queue check, default every 5 min
 const GIFT_MESSAGE = 'Gift From @VoidGiftsOfficialBot ❤️'; // shown to the recipient when they open a basic gift
 
 // ── NFT claim rules ──
