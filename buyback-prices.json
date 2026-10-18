@@ -1,0 +1,605 @@
+{
+ "_note": "Stars credited when a player sends this collectible to the relayer. Edit freely; add more rows. icon = assets/<icon>.svg (or .json) in the frontend.",
+ "items": [
+  {
+   "title": "Plush Pepe",
+   "stars": 655799,
+   "icon": "PlushPepe"
+  },
+  {
+   "title": "Heart Locket",
+   "stars": 132277,
+   "icon": "HeartLocket"
+  },
+  {
+   "title": "Durov's Cap",
+   "stars": 41106,
+   "icon": "DurovsCap"
+  },
+  {
+   "title": "Resistance Dog",
+   "stars": 31620,
+   "icon": "ResistanceDog"
+  },
+  {
+   "title": "Precious Peach",
+   "stars": 25049,
+   "icon": "PreciousPeach"
+  },
+  {
+   "title": "Scared Cat",
+   "stars": 24992,
+   "icon": "ScaredCat"
+  },
+  {
+   "title": "Heroic Helmet",
+   "stars": 18629,
+   "icon": "HeroicHelmet"
+  },
+  {
+   "title": "Mighty Arm",
+   "stars": 12993,
+   "icon": "MightyArm"
+  },
+  {
+   "title": "Loot Bag",
+   "stars": 12547,
+   "icon": "LootBag"
+  },
+  {
+   "title": "Astral Shard",
+   "stars": 11713,
+   "icon": "AstralShard"
+  },
+  {
+   "title": "Nail Bracelet",
+   "stars": 11571,
+   "icon": "NailBracelet"
+  },
+  {
+   "title": "Westside Sign",
+   "stars": 10433,
+   "icon": "WestsideSign"
+  },
+  {
+   "title": "Mini Oscar",
+   "stars": 7041,
+   "icon": "MiniOscar"
+  },
+  {
+   "title": "Perfume Bottle",
+   "stars": 6942,
+   "icon": "PerfumeBottle"
+  },
+  {
+   "title": "Ion Gem",
+   "stars": 6724,
+   "icon": "IonGem"
+  },
+  {
+   "title": "Artisan Brick",
+   "stars": 6435,
+   "icon": "ArtisanBrick"
+  },
+  {
+   "title": "Gem Signet",
+   "stars": 6123,
+   "icon": "GemSignet"
+  },
+  {
+   "title": "Low Rider",
+   "stars": 5839,
+   "icon": "LowRider"
+  },
+  {
+   "title": "Swiss Watch",
+   "stars": 5524,
+   "icon": "SwissWatch"
+  },
+  {
+   "title": "Magic Potion",
+   "stars": 5457,
+   "icon": "MagicPotion"
+  },
+  {
+   "title": "Sharp Tongue",
+   "stars": 4530,
+   "icon": "SharpTongue"
+  },
+  {
+   "title": "Bonded Ring",
+   "stars": 4230,
+   "icon": "BondedRing"
+  },
+  {
+   "title": "Kissed Frog",
+   "stars": 3958,
+   "icon": "KissedFrog"
+  },
+  {
+   "title": "Vintage Cigar",
+   "stars": 3773,
+   "icon": "VintageCigar"
+  },
+  {
+   "title": "Voodoo Doll",
+   "stars": 3770,
+   "icon": "VoodooDoll"
+  },
+  {
+   "title": "Neko Helmet",
+   "stars": 3737,
+   "icon": "NekoHelmet"
+  },
+  {
+   "title": "Genie Lamp",
+   "stars": 3540,
+   "icon": "GenieLamp"
+  },
+  {
+   "title": "Toy Bear",
+   "stars": 3419,
+   "icon": "ToyBear"
+  },
+  {
+   "title": "Signet Ring",
+   "stars": 3268,
+   "icon": "SignetRing"
+  },
+  {
+   "title": "Diamond Ring",
+   "stars": 3103,
+   "icon": "DiamondRing"
+  },
+  {
+   "title": "Rare Bird",
+   "stars": 2795,
+   "icon": "RareBird"
+  },
+  {
+   "title": "Electric Skull",
+   "stars": 2688,
+   "icon": "ElectricSkull"
+  },
+  {
+   "title": "Bling Binky",
+   "stars": 2541,
+   "icon": "BlingBinky"
+  },
+  {
+   "title": "Eternal Rose",
+   "stars": 2508,
+   "icon": "EternalRose"
+  },
+  {
+   "title": "Khabib's Papakha",
+   "stars": 2409,
+   "icon": "KhabibsPapakha"
+  },
+  {
+   "title": "Cupid Charm",
+   "stars": 2235,
+   "icon": "CupidCharm"
+  },
+  {
+   "title": "Lucky Locket",
+   "stars": 1935,
+   "icon": "LuckyLocket"
+  },
+  {
+   "title": "Sky Stilettos",
+   "stars": 1908,
+   "icon": "SkyStilettos"
+  },
+  {
+   "title": "UFC Strike",
+   "stars": 1693,
+   "icon": "UFCStrike"
+  },
+  {
+   "title": "Trapped Heart",
+   "stars": 1598,
+   "icon": "TrappedHeart"
+  },
+  {
+   "title": "Snoop Cigar",
+   "stars": 1528,
+   "icon": "SnoopCigar"
+  },
+  {
+   "title": "Love Potion",
+   "stars": 1493,
+   "icon": "LovePotion"
+  },
+  {
+   "title": "Ionic Dryer",
+   "stars": 1462,
+   "icon": "IonicDryer"
+  },
+  {
+   "title": "Mad Pumpkin",
+   "stars": 1397,
+   "icon": "MadPumpkin"
+  },
+  {
+   "title": "Crystal Ball",
+   "stars": 1299,
+   "icon": "CrystalBall"
+  },
+  {
+   "title": "Flying Broom",
+   "stars": 1265,
+   "icon": "FlyingBroom"
+  },
+  {
+   "title": "Record Player",
+   "stars": 1254,
+   "icon": "RecordPlayer"
+  },
+  {
+   "title": "Skull Flower",
+   "stars": 1237,
+   "icon": "SkullFlower"
+  },
+  {
+   "title": "Valentine Box",
+   "stars": 1129,
+   "icon": "ValentineBox"
+  },
+  {
+   "title": "Love Candle",
+   "stars": 1075,
+   "icon": "LoveCandle"
+  },
+  {
+   "title": "Top Hat",
+   "stars": 1068,
+   "icon": "TopHat"
+  },
+  {
+   "title": "Sakura Flower",
+   "stars": 1053,
+   "icon": "SakuraFlower"
+  },
+  {
+   "title": "Jingle Bells",
+   "stars": 969,
+   "icon": "JingleBells"
+  },
+  {
+   "title": "Hanging Star",
+   "stars": 954,
+   "icon": "HangingStar"
+  },
+  {
+   "title": "Fine Pen",
+   "stars": 894,
+   "icon": "FinePen"
+  },
+  {
+   "title": "Berry Box",
+   "stars": 870,
+   "icon": "BerryBox"
+  },
+  {
+   "title": "Bunny Muffin",
+   "stars": 852,
+   "icon": "BunnyMuffin"
+  },
+  {
+   "title": "Joyful Bundle",
+   "stars": 800,
+   "icon": "JoyfulBundle"
+  },
+  {
+   "title": "Jelly Bunny",
+   "stars": 777,
+   "icon": "JellyBunny"
+  },
+  {
+   "title": "Evil Eye",
+   "stars": 764,
+   "icon": "EvilEye"
+  },
+  {
+   "title": "Jolly Chimp",
+   "stars": 736,
+   "icon": "JollyChimp"
+  },
+  {
+   "title": "Sleigh Bell",
+   "stars": 735,
+   "icon": "SleighBell"
+  },
+  {
+   "title": "Surge Board",
+   "stars": 700,
+   "icon": "SurgeBoard"
+  },
+  {
+   "title": "Witch Hat",
+   "stars": 671,
+   "icon": "WitchHat"
+  },
+  {
+   "title": "Light Sword",
+   "stars": 663,
+   "icon": "LightSword"
+  },
+  {
+   "title": "Input Key",
+   "stars": 645,
+   "icon": "InputKey"
+  },
+  {
+   "title": "Lush Bouquet",
+   "stars": 625,
+   "icon": "LushBouquet"
+  },
+  {
+   "title": "Moon Pendant",
+   "stars": 615,
+   "icon": "MoonPendant"
+  },
+  {
+   "title": "Bow Tie",
+   "stars": 596,
+   "icon": "BowTie"
+  },
+  {
+   "title": "Eternal Candle",
+   "stars": 596,
+   "icon": "EternalCandle"
+  },
+  {
+   "title": "Snoop Dogg",
+   "stars": 589,
+   "icon": "SnoopDogg"
+  },
+  {
+   "title": "Spy Agaric",
+   "stars": 587,
+   "icon": "SpyAgaric"
+  },
+  {
+   "title": "Spring Basket",
+   "stars": 584,
+   "icon": "SpringBasket"
+  },
+  {
+   "title": "Faith Amulet",
+   "stars": 544,
+   "icon": "FaithAmulet"
+  },
+  {
+   "title": "Santa Hat",
+   "stars": 541,
+   "icon": "SantaHat"
+  },
+  {
+   "title": "Snow Globe",
+   "stars": 541,
+   "icon": "SnowGlobe"
+  },
+  {
+   "title": "Restless Jar",
+   "stars": 539,
+   "icon": "RestlessJar"
+  },
+  {
+   "title": "Pretty Posy",
+   "stars": 537,
+   "icon": "PrettyPosy"
+  },
+  {
+   "title": "Swag Bag",
+   "stars": 532,
+   "icon": "SwagBag"
+  },
+  {
+   "title": "Snow Mittens",
+   "stars": 526,
+   "icon": "SnowMittens"
+  },
+  {
+   "title": "Desk Calendar",
+   "stars": 522,
+   "icon": "DeskCalendar"
+  },
+  {
+   "title": "Stellar Rocket",
+   "stars": 516,
+   "icon": "StellarRocket"
+  },
+  {
+   "title": "Money Pot",
+   "stars": 514,
+   "icon": "MoneyPot"
+  },
+  {
+   "title": "Homemade Cake",
+   "stars": 513,
+   "icon": "HomemadeCake"
+  },
+  {
+   "title": "Clover Pin",
+   "stars": 501,
+   "icon": "CloverPin"
+  },
+  {
+   "title": "Cookie Heart",
+   "stars": 492,
+   "icon": "CookieHeart"
+  },
+  {
+   "title": "Liberty Figure",
+   "stars": 492,
+   "icon": "LibertyFigure"
+  },
+  {
+   "title": "B-Day Candle",
+   "stars": 488,
+   "icon": "BDayCandle"
+  },
+  {
+   "title": "Mirage Lamp",
+   "stars": 487,
+   "icon": "MirageLamp"
+  },
+  {
+   "title": "Mousse Cake",
+   "stars": 485,
+   "icon": "MousseCake"
+  },
+  {
+   "title": "Hex Pot",
+   "stars": 484,
+   "icon": "HexPot"
+  },
+  {
+   "title": "Jack-in-the-Box",
+   "stars": 482,
+   "icon": "JackintheBox"
+  },
+  {
+   "title": "Star Notepad",
+   "stars": 468,
+   "icon": "StarNotepad"
+  },
+  {
+   "title": "Victory Medal",
+   "stars": 452,
+   "icon": "VictoryMedal"
+  },
+  {
+   "title": "Timeless Book",
+   "stars": 450,
+   "icon": "TimelessBook"
+  },
+  {
+   "title": "Spiced Wine",
+   "stars": 439,
+   "icon": "SpicedWine"
+  },
+  {
+   "title": "Fresh Socks",
+   "stars": 439,
+   "icon": "FreshSocks"
+  },
+  {
+   "title": "Party Sparkler",
+   "stars": 438,
+   "icon": "PartySparkler"
+  },
+  {
+   "title": "Ginger Cookie",
+   "stars": 438,
+   "icon": "GingerCookie"
+  },
+  {
+   "title": "Mood Pack",
+   "stars": 429,
+   "icon": "MoodPack"
+  },
+  {
+   "title": "Winter Wreath",
+   "stars": 421,
+   "icon": "WinterWreath"
+  },
+  {
+   "title": "Holiday Drink",
+   "stars": 417,
+   "icon": "HolidayDrink"
+  },
+  {
+   "title": "Hypno Lollipop",
+   "stars": 414,
+   "icon": "HypnoLollipop"
+  },
+  {
+   "title": "Easter Egg",
+   "stars": 409,
+   "icon": "EasterEgg"
+  },
+  {
+   "title": "Tama Gadget",
+   "stars": 405,
+   "icon": "TamaGadget"
+  },
+  {
+   "title": "Happy Brownie",
+   "stars": 404,
+   "icon": "HappyBrownie"
+  },
+  {
+   "title": "Jester Hat",
+   "stars": 403,
+   "icon": "JesterHat"
+  },
+  {
+   "title": "Lol Pop",
+   "stars": 397,
+   "icon": "LolPop"
+  },
+  {
+   "title": "Pet Snake",
+   "stars": 395,
+   "icon": "PetSnake"
+  },
+  {
+   "title": "Whip Cupcake",
+   "stars": 387,
+   "icon": "WhipCupcake"
+  },
+  {
+   "title": "Ice Cream",
+   "stars": 385,
+   "icon": "IceCream"
+  },
+  {
+   "title": "Big Year",
+   "stars": 384,
+   "icon": "BigYear"
+  },
+  {
+   "title": "Lunar Snake",
+   "stars": 383,
+   "icon": "LunarSnake"
+  },
+  {
+   "title": "Candy Cane",
+   "stars": 383,
+   "icon": "CandyCane"
+  },
+  {
+   "title": "Pool Float",
+   "stars": 383,
+   "icon": "PoolFloat"
+  },
+  {
+   "title": "Vice Cream",
+   "stars": 382,
+   "icon": "ViceCream"
+  },
+  {
+   "title": "Instant Ramen",
+   "stars": 381,
+   "icon": "InstantRamen"
+  },
+  {
+   "title": "Chill Flame",
+   "stars": 379,
+   "icon": "ChillFlame"
+  },
+  {
+   "title": "Snake Box",
+   "stars": 379,
+   "icon": "SnakeBox"
+  },
+  {
+   "title": "Xmas Stocking",
+   "stars": 378,
+   "icon": "XmasStocking"
+  }
+ ]
+}
