@@ -442,6 +442,10 @@ function classifyClaimError(err) {
   }
   const raw = String(err?.text || err?.message || err);
 
+  if (/PEER_ID_INVALID|USER_ID_INVALID|INPUT_USER_DEACTIVATED|not found in local cache/i.test(raw)) {
+    // Telegram rejected the recipient: the gift account has no valid contact with this user yet.
+    return { status: 422, code: 'PEER_NOT_FOUND', message: `The gift account doesn't know you yet. Open @${RELAYER_USERNAME}, press Start, then tap Claim again.`, notSent: true };
+  }
   if (/STARGIFT_TRANSFER_TOO_EARLY/i.test(raw)) {
     return { status: 503, code: 'TEMPORARY', message: 'This collectible can\'t be moved yet — please try again later.', notSent: true };
   }
