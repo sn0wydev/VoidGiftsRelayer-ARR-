@@ -1082,6 +1082,7 @@ function registerIntroListener() {
 async function start() {
   await ensureRelayer();
   registerIntroListener();
+  console.log(`👋 Greeting: ${AUTOREPLY ? 'ON, once per user' : 'off'} (${greeted.size} already greeted, list: ${GREETED_PATH})`);
   app.listen(PORT, () => {
     console.log('');
     console.log('═══════════════════════════════════════════');
