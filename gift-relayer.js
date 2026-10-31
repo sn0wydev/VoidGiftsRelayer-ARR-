@@ -913,7 +913,7 @@ const PORT = process.env.PORT || 3003;
 // the "open @VoidGift_Relayer and press Start" message, the first message
 // they send makes Telegram hand the relayer that user + their access hash,
 // which mtcute caches — from then on resolveRecipient() finds them in its
-// local cache. We reply once so the player knows it worked.
+// local cache. We greet each user exactly once, the first time they write.
 // Set RELAYER_AUTOREPLY=off to disable the reply (peer caching still works).
 // ============================================
 // ============================================
@@ -1034,26 +1034,45 @@ async function handleIncomingGift(msg) {
 }
 
 const AUTOREPLY = (process.env.RELAYER_AUTOREPLY || 'on').toLowerCase() !== 'off';
-const lastIntroReplyAt = new Map(); // userId -> ms, so we never spam someone
+
+// The greeting is sent ONCE per user, the first time they ever write to the relayer, and never again.
+// Who was greeted is kept in a small file (put DATA_DIR on a Railway volume so a redeploy doesn't forget them).
+const GREETED_PATH = process.env.GREETED_STATE_PATH || path.join(process.env.DATA_DIR || __dirname, 'greeted-users.json');
+const greeted = new Set();
+try { for (const id of JSON.parse(fs.readFileSync(GREETED_PATH, 'utf8'))) greeted.add(String(id)); } catch { /* first run */ }
+function saveGreeted() {
+  try { const tmp = GREETED_PATH + '.tmp'; fs.writeFileSync(tmp, JSON.stringify([...greeted])); fs.renameSync(tmp, GREETED_PATH); }
+  catch (err) { console.error('⚠️ Could not save the greeted list:', err.message); }
+}
+
+const GREETING = [
+  'W E L C O M E  T O  V O I D  G I F T S ! ! !',
+  '',
+  '🎁 This is the VoidGifts game relayer account, and we INVITE YOU to play our game!',
+  'Spin the wheels, fly the Rocket, win the Gift Battle and collect real Telegram gifts and Stars.',
+  '',
+  'Here because of a prize? You\'re all set! Go back to the game and tap "Claim Prize" again. Your gift will arrive right here in this chat.',
+  '',
+  'PLAY > @VoidGiftsOfficialBot <',
+  'CHANNEL > https://t.me/VoidGiftsOfficial <',
+  'SUPPORT > @voidgiftssupportbot <',
+].join('\n');
 
 function registerIntroListener() {
   tg.onNewMessage.add(async (msg) => {
     try {
       if (msg.isOutgoing || msg.chat?.type !== 'user') return; // private chats only
-      if (await handleIncomingGift(msg)) return;         // a collectible arrived: buy it back, don't send the intro reply
+      if (await handleIncomingGift(msg)) return;         // a collectible arrived: buy it back, don't send the greeting
       const sender = msg.sender;
       if (!sender || sender.isBot || sender.isSelf) return;
       console.log(`👋 Relayer met user ${sender.id}`);
 
       if (!AUTOREPLY) return;
-      const last = lastIntroReplyAt.get(sender.id) || 0;
-      if (Date.now() - last < 10 * 60 * 1000) return;
-      lastIntroReplyAt.set(sender.id, Date.now());
+      const key = String(sender.id);
+      if (greeted.has(key)) return;                       // already greeted once: stay quiet
+      greeted.add(key); saveGreeted();                    // mark first, so two quick messages can't send it twice
 
-      await tg.sendText(
-        msg.chat.id,
-        "✅ You're all set! Go back to VoidGifts and tap \"Claim Prize\" again — your gift will arrive here shortly."
-      );
+      await tg.sendText(msg.chat.id, GREETING);
     } catch (err) {
       console.error('⚠️ Intro listener error:', err.message);
     }
