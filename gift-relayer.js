@@ -927,8 +927,17 @@ const NFT_BUYBACK = (process.env.NFT_BUYBACK || 'on').toLowerCase() !== 'off';
 const BUYBACK = buyback.loadPrices();
 console.log(`💱 NFT buyback: ${NFT_BUYBACK ? 'ON' : 'off'} — ${BUYBACK.items.length} priced collections`);
 
+// Black Friday: while the event runs the sell price is the Telegram floor + EVENT_SELL_BONUS_PCT (see event.js). `stars` is what the player
+// is paid right now, `base_stars` the normal price, `market` the floor it is compared with. After EVENT_END everything is normal again.
+const EVENT = require('./event').createEvent();
+const floorMem = new Map();   // norm(title) -> { floor, at }, filled by every pricing run (also dry runs) and from the saved state
+const floorOf = (title) => floorMem.get(buyback.norm(title));
+const sellPrice = (entry) => EVENT.price(entry.stars, floorOf(entry.title));
+console.log(EVENT.describe());
+
 app.get('/buyback/prices', (req, res) => {
-  res.json({ enabled: NFT_BUYBACK, relayer_username: RELAYER_USERNAME, items: BUYBACK.items, prices_updated_at: pricingState.updated_at || null });
+  const items = BUYBACK.items.map((i) => { const p = sellPrice(i); return p.market ? { ...i, stars: p.stars, base_stars: p.base, market: p.market } : i; });
+  res.json({ enabled: NFT_BUYBACK, relayer_username: RELAYER_USERNAME, items, event: EVENT.public(), prices_updated_at: pricingState.updated_at || null });
 });
 
 // ---- Automatic prices from Telegram's own resale market (see nft-pricing.js) ----
@@ -954,6 +963,7 @@ let pricingState = pricing.loadState(PRICING_STATE_PATH);
 let lastPricingReport = { at: null, mode: PRICING_MODE, rows: [] };
 let pricingBusy = false;
 if (PRICING_MODE === 'on') console.log(`💱 auto-pricing: restored ${pricing.applyState(BUYBACK.items, pricingState)} saved prices`);
+for (const [k, v] of Object.entries(pricingState.items || {})) if (v && v.floor > 0) floorMem.set(k, { floor: v.floor, at: v.floor_at || v.at });
 
 async function runPricing({ force = false, dry = PRICING_MODE === 'dry' } = {}) {
   if (pricingBusy) throw new Error('a pricing run is already in progress');
@@ -961,6 +971,7 @@ async function runPricing({ force = false, dry = PRICING_MODE === 'dry' } = {}) 
   try {
     const rows = await pricing.repriceAll({ client: tg, items: BUYBACK.items, cfg: PRICING_CFG, force, dryRun: dry, log: console.warn });
     lastPricingReport = { at: new Date().toISOString(), mode: dry ? 'dry' : 'on', force, rows };
+    for (const r of rows) if (r.floor > 0) floorMem.set(buyback.norm(r.title), { floor: r.floor, at: lastPricingReport.at });
     if (!dry) { pricingState = pricing.stateFromReport(pricingState, rows); pricing.saveState(PRICING_STATE_PATH, pricingState); }
     const c = (a) => rows.filter((r) => r.action === a).length;
     console.log(`💱 auto-pricing ${dry ? '(dry run) ' : ''}done: ${c('apply')} ${dry ? 'would change' : 'updated'}, ${c('hold')} held, ${c('skip')} unchanged, ${c('unmapped') + c('error')} problems`);
@@ -1015,19 +1026,20 @@ async function handleIncomingGift(msg) {
     console.error('❌ NFT buyback: INTERNAL_API_KEY not set — cannot credit', gift.slug);
     return true;
   }
+  const payout = sellPrice(entry).stars;   // normal price, or the Black Friday price while the event runs
   try {
     const out = await recordSale({
-      sale_key: gift.saleKey, user_id: sender.id, title: entry.title, slug: gift.slug, num: gift.num, stars: entry.stars,
+      sale_key: gift.saleKey, user_id: sender.id, title: entry.title, slug: gift.slug, num: gift.num, stars: payout,
     });
     if (out.credited) {
-      console.log(`💱 Credited ${entry.stars}★ to ${sender.id} for ${gift.title} (${gift.slug})`);
-      await reply(`✅ Received ${gift.title}${gift.num ? ' #' + gift.num : ''}. +${entry.stars} ⭐ added to your VoidGifts balance — open the app to see it.`);
+      console.log(`💱 Credited ${payout}★ to ${sender.id} for ${gift.title} (${gift.slug})${payout !== entry.stars ? ' [event price, normal ' + entry.stars + ']' : ''}`);
+      await reply(`✅ Received ${gift.title}${gift.num ? ' #' + gift.num : ''}. +${payout} ⭐ added to your VoidGifts balance — open the app to see it.`);
     } else {
       console.log(`💱 Sale ${gift.saleKey} already recorded — skipped`);
     }
   } catch (err) {
     // Never silently lose a sale: it is in the logs with everything needed to credit by hand.
-    console.error(`❌ NFT buyback FAILED to credit ${entry.stars}★ to ${sender.id} for ${gift.title} ${gift.slug} key=${gift.saleKey}:`, err.message);
+    console.error(`❌ NFT buyback FAILED to credit ${payout}★ to ${sender.id} for ${gift.title} ${gift.slug} key=${gift.saleKey}:`, err.message);
     await reply('⚠️ We received your gift but could not credit it right now. Support will fix it — no need to resend.');
   }
   return true;
